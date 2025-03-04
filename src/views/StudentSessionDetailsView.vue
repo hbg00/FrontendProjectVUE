@@ -4,7 +4,7 @@
 
     <div v-if="session">
       <h3>{{ session.courseName ?? 'Brak nazwy' }} - {{ session.courseGroupName ?? 'Brak grupy' }}</h3>
-      <p><strong>Termin:</strong> {{ formatDate(session.dateStart) }} - {{ formatDate(session.dateEnd) }}</p>
+      <p><strong>Termin:</strong> {{ formatDate(session.dateStart ?? null) }} - {{ formatDate(session.dateEnd ?? null) }}</p>
       <p><strong>Lokalizacja:</strong> {{ session.locationName ?? 'Brak lokalizacji' }}</p>
       <p><strong>Sala:</strong> {{ session.roomName ?? 'Brak informacji o sali' }}</p>
 
@@ -45,11 +45,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { Backend } from '@/main';
 import type { CourseSessionListItem } from '@/backend/AttendMeBackendClientBase';
 
+interface ExtendedCourseSession extends CourseSessionListItem {
+  roomName?: string;
+}
+
 const route = useRoute();
 const router = useRouter();
-const session = ref<CourseSessionListItem | null>(null);
 const wasUserPresent = ref(false);
 const isLoading = ref(false);
+const session = ref<ExtendedCourseSession | null>(null);
 const errorMessage = ref<string | null>(null);
 const totalAttendances = ref(0);
 const totalSessions = ref(1);
@@ -87,11 +91,15 @@ function goBack() {
   router.push({ name: "studentDashboardView" });
 }
 
-function formatDate(dateString: string | null): string {
-  if (!dateString) return "Brak daty";
-  const date = new Date(dateString);
+function formatDate(dateValue: string | Date | null | undefined): string {
+  if (!dateValue) return "Brak daty";
+
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+  if (isNaN(date.getTime())) return "Nieprawidłowa data";
+
   return date.toLocaleString("pl-PL", { hour: "2-digit", minute: "2-digit" });
 }
+
 
 onMounted(() => {
   fetchSessionDetails();

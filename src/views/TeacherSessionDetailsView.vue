@@ -8,7 +8,7 @@
       <h3>{{ session.courseName ?? "Brak nazwy" }} - {{ session.courseGroupName ?? "Brak grupy" }}</h3>
       <p>
         <strong>Termin:</strong>
-        {{ formatDate(session.dateStart) }} - {{ formatDate(session.dateEnd) }}
+        {{ formatDate(session.dateStart ?? null) }} - {{ formatDate(session.dateEnd ?? null) }}
       </p>
       <p>
         <strong>Lokalizacja:</strong>
@@ -245,9 +245,10 @@ onUnmounted(() => {
   if (refreshInterval) clearInterval(refreshInterval);
 });
 
-function formatDate(dateString: string | null): string {
-  if (!dateString) return "Brak daty";
-  const date = new Date(dateString);
+function formatDate(dateValue: string | Date | null): string {
+  if (!dateValue) return "Brak daty";
+  const date = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+  if (isNaN(date.getTime())) return "Nieprawidłowa data";
   return date.toLocaleString("pl-PL", {
     hour: "2-digit",
     minute: "2-digit",

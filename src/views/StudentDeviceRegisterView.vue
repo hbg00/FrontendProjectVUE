@@ -38,7 +38,7 @@
             <button type="button" class="btn-close" @click="showQrCode = false"></button>
           </div>
           <div class="modal-body text-center">
-            <qrcode-vue :value="ticket" size="200" level="M" v-if="ticket" />
+            <qrcode-vue :value="ticket" :size="200" level="M" v-if="ticket" />
             <p v-if="lastAttendance" class="text-success">Twoja obecność została już zarejestrowana.</p>
             <p>Zbliż telefon do skanera</p>
           </div>

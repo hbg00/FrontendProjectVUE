@@ -37,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="session in sessions" :key="session.courseSessionId" @click="goToSessionDetails(session.courseSessionId)">
+          <tr v-for="session in sessions" :key="session.courseSessionId" @click="goToSessionDetails(session.courseSessionId!)">
             <td>{{ session.courseName }}</td>
             <td>{{ session.courseGroupName }}</td>
             <td>{{ formatDate(session.dateStart) }}</td>
@@ -87,12 +87,12 @@ async function fetchSessions() {
         filters.filters!.dateStart = new Date(now.setHours(0, 0, 0, 0));
         filters.filters!.dateEnd = new Date(now.setHours(23, 59, 59, 999));
         break;
-      case 'tomorrow':
-        const tomorrow = new Date();
-        tomorrow.setDate(now.getDate() + 1);
-        filters.filters!.dateStart = new Date(tomorrow.setHours(0, 0, 0, 0));
-        filters.filters!.dateEnd = new Date(tomorrow.setHours(23, 59, 59, 999));
-        break;
+        case 'tomorrow':
+          const tomorrow = new Date(now);
+          tomorrow.setDate(now.getDate() + 1);
+          filters.filters!.dateStart = new Date(tomorrow.setHours(0, 0, 0, 0));
+          filters.filters!.dateEnd = new Date(tomorrow.setHours(23, 59, 59, 999));
+          break;
       case 'week':
         filters.filters!.dateStart = new Date(now.setHours(0, 0, 0, 0));
         filters.filters!.dateEnd = new Date(now.setDate(now.getDate() + 7));
@@ -113,19 +113,17 @@ async function fetchSessions() {
 
 function formatDate(date: Date | undefined): string {
   if (!date) return "Brak daty";
-  return new Date(date).toLocaleDateString() + "";
+  return date.toLocaleDateString("pl-PL");
 }
 
 function formatDateToHour(date: Date | undefined): string {
-  let minutes;
   if (!date) return "Brak daty";
-  if (date.getMinutes() === 0) {
-    minutes = "00";
-  } else {
-    minutes = date.getMinutes();
-  }
-  return new Date(date).getHours() + ":" + minutes;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  return `${hours}:${formattedMinutes}`;
 }
+
 
 function goToSessionDetails(sessionId: number) {
   router.push({ name: 'sessionDetails', params: { id: sessionId } });

@@ -6,10 +6,10 @@
     </div>
 
     <div class="scanner-wrapper">
-      <qrcode-stream 
-        camera="user" 
-        @detect="onDetect" 
-        @error="onError" 
+      <qrcode-stream
+        camera="user"
+        @detect="onDetect"
+        @error="onError"
         class="qr-scanner"
         :track="paintBoundingBox"
       />
@@ -33,6 +33,17 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { Backend } from "@/main";
 import { QrcodeStream } from "vue-qrcode-reader";
+
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface DetectedCode {
+  boundingBox: BoundingBox;
+}
 
 const route = useRoute();
 const router = useRouter();
@@ -84,9 +95,10 @@ const onError = (err: any) => {
   }
 };
 
-const paintBoundingBox = (detectedCodes: any, ctx: CanvasRenderingContext2D) => {
+const paintBoundingBox = (detectedCodes: DetectedCode[], ctx: CanvasRenderingContext2D) => {
   if (detectedCodes.length > 0) {
-    detectedCodes.forEach(({ boundingBox: { x, y, width, height } }) => {
+    detectedCodes.forEach(({ boundingBox }) => {
+      const { x, y, width, height } = boundingBox;
       ctx.lineWidth = 2;
       ctx.strokeStyle = "#007bff";
       ctx.strokeRect(x, y, width, height);
